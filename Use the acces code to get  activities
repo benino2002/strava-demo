@@ -1,0 +1,38 @@
+import requests
+import json
+import pandas as pd
+
+# Replace with your new access token
+access_token = 'f902e252529d5a0b3c88d1677e2c2f4f1cf7298a'
+
+# Use your access token to get activities data
+headers = {'Authorization': f'Bearer {access_token}'}
+activities_url = "https://www.strava.com/api/v3/athlete/activities"
+
+activities_response = requests.get(activities_url, headers=headers)
+
+# Print status code and response text for debugging
+print(f"Status Code: {activities_response.status_code}")
+print(f"Response Text: {activities_response.text}")
+
+# Check if the response is successful
+if activities_response.status_code == 200:
+    activities_data = activities_response.json()
+    
+    # Check if data is retrieved
+    if activities_data:
+        # Convert the activities data into a DataFrame
+        df = pd.json_normalize(activities_data)
+        
+        # Display the DataFrame
+        print(df.head())
+        
+        # Export DataFrame to JSON
+        df.to_json('strava_activities.json', orient='records', lines=True)
+        
+        print("Data exported to strava_activities.json")
+    else:
+        print("No activities data found.")
+else:
+    print(f"Failed to retrieve data: {activities_response.status_code}")
+    print(f"Error Message: {activities_response.json()}")
